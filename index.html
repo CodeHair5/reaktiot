@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kemian Simulaattori</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+
+    <!-- Latausruutu -->
+    <div id="loading-screen">
+        <h1>⚗️ Kemian Simulaattori</h1>
+        <p id="loading-status">Ladataan ympäristöä…</p>
+        <button id="start-btn" disabled>Ladataan</button>
+    </div>
+
+    <!-- Reagenssivalikko (vasen yläkulma) -->
+    <div id="reagent-panel" class="panel hidden">
+        <label for="reagent-select">Aine:</label>
+        <select id="reagent-select">
+            <option value="Fe">Rauta (Fe)</option>
+            <option value="Mg">Magnesium (Mg)</option>
+            <option value="Cu">Kupari (Cu)</option>
+            <option value="CaCO3">Kalsiumkarbonaatti (CaCO₃)</option>
+            <option value="NaOH">Natriumhydroksidi (NaOH)</option>
+            <option value="NH3">Ammoniakki (NH₃)</option>
+            <option value="Luminol">Luminoli</option>
+            <option value="Yeast">Kuivahiiva (katalyytti)</option>
+        </select>
+        <button id="reset-btn">Nollaa</button>
+        <button id="match-btn">🔥 Tulitikku</button>
+        <button id="match-dismiss-btn" class="hidden">❌ Poista tikku</button>
+    </div>
+
+    <!-- Kaavalippu (alhaalla keskellä) -->
+    <div id="formula-box" class="hidden"></div>
+
+    <!-- Ohjevihje -->
+    <div id="hint" class="hidden">Valitse aine ja klikkaa koeputkea</div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

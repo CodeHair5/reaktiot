@@ -1,0 +1,138 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: #0e0e1a;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #e0e0f0;
+}
+
+canvas { display: block; }
+
+/* ── Latausruutu ──────────────────────────────────────────────────────────── */
+#loading-screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center; gap: 18px;
+    background: #0e0e1a;
+    z-index: 100;
+    transition: opacity 0.6s;
+}
+
+#loading-screen h1 { font-size: 2rem; letter-spacing: 0.04em; }
+#loading-status { font-size: 0.9rem; color: #888; }
+
+#start-btn {
+    padding: 14px 40px; font-size: 1.1rem;
+    border: none; border-radius: 8px;
+    background: #3a7fc1; color: #fff; cursor: pointer;
+    transition: background 0.2s;
+}
+#start-btn:disabled { background: #333; color: #666; cursor: wait; }
+#start-btn:hover:not(:disabled) { background: #4a94d8; }
+
+/* ── Reagenssipaneeli ─────────────────────────────────────────────────────── */
+.panel {
+    position: fixed; top: 16px; left: 16px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    user-select: none;
+}
+
+.panel label { font-size: 0.88rem; color: #bbc; }
+
+.panel select,
+.panel button {
+    padding: 6px 12px; border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08); color: inherit;
+    cursor: pointer; font-size: 0.88rem;
+}
+
+.panel select option { background: #1a1a2e; }
+
+#reset-btn { background: rgba(220, 60, 60, 0.25); }
+#reset-btn:hover { background: rgba(220, 60, 60, 0.45); }
+
+/* ── Kaavalippu ───────────────────────────────────────────────────────────── */
+#formula-box {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    padding: 12px 28px;
+    background: rgba(0, 0, 0, 0.60);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    font-size: 1.05rem; text-align: center;
+    max-width: 90vw;
+    transition: opacity 0.35s;
+}
+
+/* ── Ohjevihje ────────────────────────────────────────────────────────────── */
+#hint {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    padding: 7px 18px;
+    background: rgba(0, 0, 0, 0.40);
+    border-radius: 8px;
+    font-size: 0.82rem; color: #99a;
+    pointer-events: none;
+}
+
+/* ── Putki-labelit (CSS2DRenderer) ────────────────────────────────────────── */
+.tube-label {
+    background: rgba(0, 0, 0, 0.50);
+    color: #c8dff5;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 3px 9px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ── Tulitikkunappi ───────────────────────────────────────────────────────── */
+#match-btn {
+    background: rgba(255, 140, 20, 0.30);
+    border-color: rgba(255, 140, 20, 0.30);
+}
+#match-btn:hover { background: rgba(255, 140, 20, 0.50); }
+#match-dismiss-btn {
+    background: rgba(180, 60, 60, 0.30);
+    border-color: rgba(180, 60, 60, 0.30);
+}
+#match-dismiss-btn:hover { background: rgba(180, 60, 60, 0.50); }
+
+/* ── Mobiiliresponsiivisuus ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .panel {
+        flex-wrap: wrap;
+        top: 8px; left: 8px; right: 8px;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+    .panel label { width: 100%; font-size: 0.82rem; }
+    .panel select { flex: 1 1 auto; min-width: 0; font-size: 0.82rem; }
+    .panel button { flex: 0 0 auto; font-size: 0.78rem; padding: 5px 9px; }
+
+    #formula-box {
+        padding: 8px 14px;
+        font-size: 0.88rem;
+        bottom: 14px;
+    }
+    #hint {
+        top: auto;
+        bottom: 60px;
+        font-size: 0.75rem;
+    }
+    #loading-screen h1 { font-size: 1.4rem; }
+}
+
+/* ── Apuluokka ────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
