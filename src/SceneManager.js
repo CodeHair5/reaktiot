@@ -94,6 +94,14 @@ export class SceneManager {
         this._bloomSpike  = 0;      // väliaikainen lisäteho (reaktioissa)
         this._bloomDecay  = 0;      // lisätehon poistumisnopeus (/s)
 
+        // Adaptiivinen laatu: FPS-mittaus ensimmäisten 3 s aikana.
+        // Jos FPS jää alle 40, siirrytään kevyempään tilaan: bloom pois,
+        // pikselisuhde 1× — nämä ovat suurimmat GPU-kuorman aiheuttajat.
+        this._aqFrames   = 0;
+        this._aqElapsed  = 0;
+        this._aqLocked   = false;  // true kun mittaus valmis
+        this._lowQuality = false;  // true kun huonotehoinen laite havaittu
+
         // O₂ jatkuvan bloom-pulssin tila
         this._o2MatchTubeIdx  = -1;   // putki jonka päällä tikku on O₂-moodissa
         this._gasDecayTimers  = new Map();   // tubeIdx → sekuntia jäljellä
@@ -153,6 +161,27 @@ export class SceneManager {
     update() {
         const dt   = this.clock.getDelta();
         const time = this.clock.getElapsedTime();
+
+        // ── Adaptiivinen laatu ─────────────────────────────────────────────────
+        // Mitataan FPS ensimmäisten 3 s aikana. Jos laite ei ylläpidä 40 FPS:ää,
+        // kytketään bloom pois ja lasketaan pikselisuhde 1×:ään — nämä ovat
+        // ylivoimaisesti suurimmat GPU-kuorman aiheuttajat.
+        if (!this._aqLocked) {
+            this._aqFrames++;
+            this._aqElapsed += dt;
+            if (this._aqElapsed >= 3.0) {
+                this._aqLocked = true;
+                const fps = this._aqFrames / this._aqElapsed;
+                if (fps < 40) {
+                    this._lowQuality = true;
+                    this._renderer.setPixelRatio(1);
+                    const w = window.innerWidth, h = window.innerHeight;
+                    this._renderer.setSize(w, h);
+                    this._composer.setSize(w, h);
+                    if (this._bloomPass) this._bloomPass.enabled = false;
+                }
+            }
+        }
 
         // Shader-uniformit
         for (const tube of this.tubes) tube.update(dt, time);
@@ -365,7 +394,13 @@ export class SceneManager {
             }
         }
 
-        this._composer.render();
+        // Renderöi: huonotehoisilla laitteilla ohitetaan EffectComposer (bloom)
+        // ja käytetään suoraa renderöintiä — säästää useita GPU-kierroksia per frame.
+        if (this._lowQuality) {
+            this._renderer.render(this.scene, this._camera);
+        } else {
+            this._composer.render();
+        }
         this._css2dRenderer.render(this.scene, this._camera);
     }
 
@@ -945,5 +980,7 @@ export class SceneManager {
         this._renderer.setSize(w, h);
         this._composer.setSize(w, h);
         this._css2dRenderer.setSize(w, h);
+        // Säilytä low-quality-tila resize:n jälkeenkin
+        if (this._lowQuality) this._renderer.setPixelRatio(1);
     }
 }
