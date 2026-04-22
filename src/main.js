@@ -21,6 +21,17 @@ import { SceneManager }    from './SceneManager.js';
 import { ChemistryEngine } from './ChemistryEngine.js';
 import { UIManager }       from './UIManager.js';
 
+/**
+ * Toistaa äänitiedoston. Epäonnistuminen (esim. tiedosto puuttuu) ei kaada sovellusta.
+ * @param {string} src   - Polku äänitiedostoon
+ * @param {number} [volume=1] - Äänenvoimakkuus 0–1
+ */
+function playSound(src, volume = 1) {
+    const audio = new Audio(src);
+    audio.volume = Math.max(0, Math.min(1, volume));
+    audio.play().catch(() => {});
+}
+
 class App {
     constructor() {
         this.sceneManager    = new SceneManager();
@@ -127,6 +138,7 @@ class App {
         this.sceneManager.lightMatch();
         this.uiManager.showMatchDismiss(true);
         this.uiManager.setHint('Klikkaa koeputkea tulitikkutestiä varten');
+        playSound('src/Sounds/tulitikku.mp3', 0.3);
     }
 
     /** Käyttäjä poistaa tulitikun. */
@@ -145,9 +157,14 @@ class App {
 
         if (gas === 'H2') {
             // Vety: paukahtava pop — liekki sammuu, kipinät + huurre + paineaalto
-            match.triggerH2Pop();
-            this.sceneManager.triggerH2PopVFX(tubeIdx);
-            this.sceneManager.spikeBloom(2.8, 0.55);
+            // Ääni käynnistetään ensin; visuaaliset efektit viivästetään 120 ms
+            // jotta selaimen ääni-I/O ehtii käynnistyä ennen räjähdysflashin.
+            playSound('src/Sounds/vety.mp3');
+            setTimeout(() => {
+                match.triggerH2Pop();
+                this.sceneManager.triggerH2PopVFX(tubeIdx);
+                this.sceneManager.spikeBloom(2.8, 0.55);
+            }, 120);
             this.uiManager.showFormula('H₂(g) + ½O₂ → H₂O  💥 Paukahdus!');
             this.uiManager.setHint('Vetykaasu paukahtaa!');
         } else if (gas === 'CO2') {
